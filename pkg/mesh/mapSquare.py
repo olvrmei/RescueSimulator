@@ -26,7 +26,7 @@ class MapSquare:
 
         ## Posicao do agente e do objetivo
         self.posAgent = (0,0)
-        self.posGoal = (1,1)
+        self.posGoal = (3,3)
 
         ## Variavel que armazena o arquivo que contem o mapa inicial
         self.load = load
@@ -69,18 +69,19 @@ class MapSquare:
             for i in things:
                 for j in things[i]:
                     pos = j.split(",")
+                    # print(pos)
                     ## Define que naquela posicao vai ter determinado objeto
-                    self.listPlaces[int(pos[0])][int(pos[1])].itemInside = i
-                    ## Atualiza a cor do lugar
-                    self.listPlaces[int(pos[0])][int(pos[1])].updateColor()
+                    # self.listPlaces[int(pos[0])][int(pos[1])].itemInside = i
+                    # ## Atualiza a cor do lugar
+                    # self.listPlaces[int(pos[0])][int(pos[1])].updateColor()
 
             ## Seta as posicoes do robo e do objetivo
-            if "Agente" in things:
-                pos = things["Agente"][0].split(",")
-                self.posAgent = (int(pos[0]), int(pos[1]))
-            if "Objetivo" in things:
-                pos = things["Objetivo"][0].split(",")
-                self.posGoal = (int(pos[0]), int(pos[1]))
+            # if "Agente" in things:
+            #     pos = things["Agente"][0].split(",")
+            #     self.posAgent = (int(pos[0]), int(pos[1]))
+            # if "Objetivo" in things:
+            #     pos = things["Objetivo"][0].split(",")
+            #     self.posGoal = (int(pos[0]), int(pos[1]))
 
 
     ## Metodo que verifica o clique do mouse

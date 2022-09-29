@@ -24,7 +24,7 @@ class Model:
         ## Seta a posicao do agente
         self.agentPos = [0,0]
         ## Seta a posicao do objetivo
-        self.goalPos = [0,0]
+        self.goalPos = [3,3]
 
         ## Cria a view
         self.view = View(self)

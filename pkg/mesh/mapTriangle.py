@@ -35,7 +35,7 @@ class MapTriangle:
         
         ## Posicao do agente e do objetivo
         self.posAgent = (0,0)
-        self.posGoal = (1,1)
+        # self.posGoal = (1,1)
         ## Chama o metodo para gerar a malha de triangulos
         self.generateMap()
 
