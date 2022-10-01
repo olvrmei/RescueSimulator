@@ -1,9 +1,10 @@
+from distutils.command.config import config
 import square
 import os
 from datetime import datetime
 ## Classe que define o Mesh de quadrados
 class MapSquare:
-    def __init__(self, width, heigth, sideSquare, screen, posBegin = (0,0), load = False):
+    def __init__(self, width, heigth, sideSquare, screen, configData, posBegin = (0,0), load = False):
         """
         @param width: Largura que a malha vai ter
         @param heigth: Altura que a malha vai ter
@@ -24,9 +25,15 @@ class MapSquare:
         ## Variavel que armazena qual quadrado foi selecionado
         self.selectPlace = False
 
+        ## posições das vitimas
+        self.victimLocations = configData.getVitimas()
+
         ## Posicao do agente e do objetivo
-        self.posAgent = (0,0)
-        self.posGoal = (3,3)
+        self.posAgent = configData.getBase()
+        # self.posGoal = (3,3)
+
+        # posições das paredes
+        self.wallLocations = configData.getParedes()
 
         ## Variavel que armazena o arquivo que contem o mapa inicial
         self.load = load
@@ -51,6 +58,17 @@ class MapSquare:
             yr += 1
             y += self.sideSquare
             self.listPlaces.append(line)
+
+        # print(self.listPlaces)
+
+        for pos in self.victimLocations:
+            self.listPlaces[pos[0]][pos[1]].itemInside = "Vitima"
+            self.listPlaces[pos[0]][pos[1]].color = (255, 0, 0)
+
+        for pos in self.wallLocations:
+            self.listPlaces[pos[0]][pos[1]].itemInside = "Parede"
+            self.listPlaces[pos[0]][pos[1]].color = (0, 0, 255)
+
 
         ##Faz o carregamento de um mapa salvo
         if self.load != False:
@@ -97,11 +115,11 @@ class MapSquare:
                     self.listPlaces[self.posAgent[0]][self.posAgent[1]].agent = False
                     self.posAgent = obj.ide
                     obj.agent = True
-                elif obj.itemInside == "Objetivo":
+                # elif obj.itemInside == "Objetivo":
                     
-                    self.listPlaces[self.posGoal[0]][self.posGoal[1]].goal = False
-                    self.posGoal = obj.ide
-                    obj.goal = True
+                #     self.listPlaces[self.posGoal[0]][self.posGoal[1]].goal = False
+                #     self.posGoal = obj.ide
+                #     obj.goal = True
                 obj.itemInside = False
             self.selectPlace = False
             return True  

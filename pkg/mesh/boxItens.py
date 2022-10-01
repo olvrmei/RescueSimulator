@@ -15,7 +15,7 @@ class BoxItens:
         ## Itens disponíveis
         self.items = []
         self.items.append(item.Item("Robô", "robot.png", (50, 65), (self.posBackground[0] + 20, self.posBackground[1] + 70 ), self.screen))
-        self.items.append(item.Item("Objetivo", "goal.png", (60, 60), (self.posBackground[0] + 90, self.posBackground[1] + 70 ), self.screen))
+        # self.items.append(item.Item("Objetivo", "goal.png", (60, 60), (self.posBackground[0] + 90, self.posBackground[1] + 70 ), self.screen))
 
         self.items.append(item.Item("Cone", "cone.png", (50, 65), (self.posBackground[0] + 20, self.posBackground[1] + 180 ), self.screen))
         self.items.append(item.Item("Parede", "wall.png", (60, 60), (self.posBackground[0] + 90, self.posBackground[1] + 180 ), self.screen))

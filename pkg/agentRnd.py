@@ -54,8 +54,8 @@ class AgentRnd:
         # self.prob.defGoalState(randint(0,model.rows-1), randint(0,model.columns-1))
         
         # definimos um estado objetivo que veio do arquivo ambiente.txt
-        self.prob.defGoalState(model.maze.board.posGoal[0],model.maze.board.posGoal[1])
-        print("*** Objetivo do agente: ", self.prob.goalState)
+        # self.prob.defGoalState(model.maze.board.posGoal[0],model.maze.board.posGoal[1])
+        # print("*** Objetivo do agente: ", self.prob.goalState)
         print("*** Total de vitimas existentes no ambiente: ", self.model.getNumberOfVictims())
 
 

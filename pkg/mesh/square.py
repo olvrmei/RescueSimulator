@@ -45,8 +45,8 @@ class Square:
             pygame.draw.rect(self.screen,(0,255,0),(self.ref[0],self.ref[1],self.side,self.side))
         elif self.color != False:
             pygame.draw.rect(self.screen,self.color,(self.ref[0],self.ref[1],self.side,self.side))
-        elif self.goal == True:
-            pygame.draw.rect(self.screen,(240,230,140),(self.ref[0],self.ref[1],self.side,self.side))
+        # elif self.goal == True:
+        #     pygame.draw.rect(self.screen,(240,230,140),(self.ref[0],self.ref[1],self.side,self.side))
         elif self.color != False:
             pygame.draw.rect(self.screen,self.color,(self.ref[0],self.ref[1],self.side,self.side))
         elif self.victim == True:
@@ -81,9 +81,9 @@ class Square:
         if self.itemInside == "Agente":
             self.agent = True
             return self
-        elif self.itemInside == "Objetivo":
-            self.goal = True
-            return self
+        # elif self.itemInside == "Objetivo":
+        #     self.goal = True
+        #     return self
         self.updateColor()
         return False
     
@@ -100,8 +100,8 @@ class Square:
             self.actionable = True
         elif self.itemInside == "Agente":
             self.agent = True
-        elif self.itemInside == "Objetivo":
-            self.goal = True
+        # elif self.itemInside == "Objetivo":
+        #     self.goal = True
         elif self.itemInside == "Vitima":
             self.victim = True
         else:

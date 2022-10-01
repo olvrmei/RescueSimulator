@@ -33,7 +33,7 @@ class Data:
                     raise Exception("Parâmetro inválido")
 
                 self.ambiente[parameter] = variable
-        print(self.ambiente)
+        # print(self.ambiente)
 
     def loadSinaisVitais(self):
         with open(self.pathSinaisVitais, "r") as file:
@@ -42,7 +42,7 @@ class Data:
                 variables = [float(x) if i>0 else int(x) for i,x in enumerate(line)]
 
                 self.sinaisVitais.append(variables)
-        print(self.sinaisVitais)
+        # print(self.sinaisVitais)
 
     def getTe(self):
         return self.ambiente["Te"]
