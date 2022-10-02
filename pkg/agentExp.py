@@ -8,6 +8,7 @@ import os
 
 
 ## Importa Classes necessarias para o funcionamento
+sys.path.append(os.path.join("pkg"))
 from model import Model
 from problem import Problem
 from state import State
@@ -35,11 +36,10 @@ class AgentExp:
 
         # Mapa do ambiente
         # Inicialmente define como livre todas as posições
-        self.mazeMap = []
-        for row in model.rows:
-            for column in model.columns:
-                self.updateMazeMap([row,column],"unknown")
-       
+        self.mazeMap = [[""] * self.model.rows] * self.model.columns
+        for r in range(0, model.rows):
+            for c in range(0, model.columns):
+                self.updateMazeMap([r,c],"unknown")
 
         ## Obtem o tempo que tem para executar
         self.tl = configDict["Te"]
@@ -96,6 +96,13 @@ class AgentExp:
 
     ## Metodo que define a deliberacao do agente 
     def deliberate(self):
+        # se encontra vitima, adiciona ao array de vitimas
+        # se encontra parede, adiciona ao array de paredes
+        # diminui o tempo disponivel
+        #calcula o tempo de retorno
+        # se tempo disponivel > tempo de retorno, repete
+        # senão volta para a base
+
         ## Verifica se há algum plano a ser executado
         if len(self.libPlan) == 0:
             return -1   ## fim da execucao do agente, acabaram os planos
@@ -205,4 +212,4 @@ class AgentExp:
         """
         Map labels: unknown | obstacle | victimId
         """
-        self.victimsData[pos[0]][pos[1]] = label
+        self.mazeMap[pos[0]][pos[1]] = label

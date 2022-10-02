@@ -2,6 +2,7 @@ from distutils.command.config import config
 import sys
 import os
 import time
+from pkg.agentExp import AgentExp
 
 from pkg.data import Data
 
@@ -9,6 +10,8 @@ from pkg.data import Data
 sys.path.append(os.path.join("pkg"))
 from model import Model
 from agentRnd import AgentRnd
+from agentExp import AgentExp
+
 
 
 ## Metodo utilizado para permitir que o usuario construa o labirindo clicando em cima
@@ -47,7 +50,16 @@ def main():
     model.draw()
 
     # Cria um agente
-    agent = AgentRnd(model, configData.ambiente)
+    # agent = AgentRnd(model, configData.ambiente)
+    agentExp = AgentExp(model, configData.ambiente)
+
+    # Ciclo de raciocinio do agente explorador
+    agentExp.deliberate()
+    while agentExp.deliberate() != -1:
+        model.draw()
+        time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+    model.draw()  
+
 
     ## agente explorador
         # agente delibera
