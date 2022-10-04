@@ -6,6 +6,8 @@
 import sys
 import os
 
+from pkg.returnPlan import ReturnPlan
+
 
 ## Importa Classes necessarias para o funcionamento
 sys.path.append(os.path.join("pkg"))
@@ -44,6 +46,8 @@ class AgentExp:
         ## Obtem o tempo que tem para executar
         self.tl = configDict["Te"]
         print("Tempo disponivel: ", self.tl)
+
+        self.availableTime = configDict["Te"]
         
         ## Pega o tipo de mesh, que está no model (influência na movimentação)
         self.mesh = self.model.mesh
@@ -83,7 +87,7 @@ class AgentExp:
 
         ## adicionar crencas sobre o estado do ambiente ao plano - neste exemplo, o agente faz uma copia do que existe no ambiente.
         ## Em situacoes de exploracao, o agente deve aprender em tempo de execucao onde estao as paredes
-        self.plan.setWalls(model.maze.walls)
+        # self.plan.setWalls(model.maze.walls)
         
         ## Adiciona o(s) planos a biblioteca de planos do agente
         self.libPlan=[self.plan]
@@ -103,10 +107,23 @@ class AgentExp:
         # se tempo disponivel > tempo de retorno, repete
         # senão volta para a base
 
+
+
         ## Verifica se há algum plano a ser executado
         if len(self.libPlan) == 0:
             return -1   ## fim da execucao do agente, acabaram os planos
         
+        if self.availableTime <= 0:
+            return -1
+
+        if self.plan.name != "retornaParaBase": 
+            # caso tenha que retornar para base
+            self.currentState = self.positionSensor()
+            self.plan.updateCurrentState(self.currentState) # atualiza o current state no plano
+            print("Ag cre que esta em: ", self.currentState)
+
+            self.shouldReturnToBase()
+
         self.plan = self.libPlan[0]
 
         print("\n*** Inicio do ciclo raciocinio ***")
@@ -131,12 +148,6 @@ class AgentExp:
         print("Tempo disponivel: ", self.tl)
 
         ## TO DO: Atualizar Mapa do ambiente
-
-        ## Verifica se atingiu o estado objetivo
-        ## Poderia ser outra condição, como atingiu o custo máximo de operação
-        if self.prob.goalTest(self.currentState):
-            print("!!! Objetivo atingido !!!")
-            del self.libPlan[0]  ## retira plano da biblioteca
         
         ## Verifica se tem vitima na posicao atual    
         victimId = self.victimPresenceSensor()
@@ -213,3 +224,10 @@ class AgentExp:
         Map labels: unknown | obstacle | victimId
         """
         self.mazeMap[pos[0]][pos[1]] = label
+
+    def shouldReturnToBase(self):
+        if self.time <= self.costAll :
+            plan = ReturnPlan(self.prob, self.currentState)
+            if self.time - plan.getCost():
+                self.libPlan.pop(0)
+                self.libPlan.append(plan)
