@@ -11,7 +11,7 @@ class ReturnPlan:
         self.problem = problem
         self.initialState = initialState
         self.currentState = initialState
-        self.goalState = problem.getInitalState()
+        self.goalState = problem.getInitialState()
         self.name = name
 
         # inicializa heurísticas

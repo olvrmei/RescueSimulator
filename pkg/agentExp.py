@@ -16,7 +16,7 @@ from problem import Problem
 from state import State
 
 ## Importa o algoritmo para o plano
-from expPlan import ExpPlan
+from explorePlan import ExplorePlan
 
 ##Importa o Planner
 # sys.path.append(os.path.join("pkg", "planner"))
@@ -83,7 +83,7 @@ class AgentExp:
         self.costAll = 0
 
         ## Cria a instancia do plano para se movimentar aleatoriamente no labirinto (sem nenhuma acao) 
-        self.plan = ExpPlan(model.rows, model.columns, self.prob.goalState, initial, "goal", self.mesh)
+        self.plan = ExplorePlan(model.rows, model.columns, self.prob.goalState, initial, "goal", self.mesh)
 
         ## adicionar crencas sobre o estado do ambiente ao plano - neste exemplo, o agente faz uma copia do que existe no ambiente.
         ## Em situacoes de exploracao, o agente deve aprender em tempo de execucao onde estao as paredes
@@ -226,8 +226,8 @@ class AgentExp:
         self.mazeMap[pos[0]][pos[1]] = label
 
     def shouldReturnToBase(self):
-        if self.time <= self.costAll :
+        if self.availableTime <= self.costAll :
             plan = ReturnPlan(self.prob, self.currentState)
-            if self.time - plan.getCost():
+            if self.availableTime - plan.getCost():
                 self.libPlan.pop(0)
                 self.libPlan.append(plan)

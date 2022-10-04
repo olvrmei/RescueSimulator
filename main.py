@@ -2,7 +2,6 @@ from distutils.command.config import config
 import sys
 import os
 import time
-from pkg.agentExp import AgentExp
 
 from pkg.data import Data
 
@@ -26,7 +25,7 @@ def buildMaze(model):
 
 def main():
 
-    configData = Data("./config_data/ambiente.txt", "./config_data/sinaisVitais.txt")
+    configData = Data("./config_data/ambiente.txt", "./config_data/sinaisvitais.txt")
 
     # Cria o ambiente (modelo) = Labirinto com suas paredes
     mesh = "square"
