@@ -29,6 +29,17 @@ class Problem:
         self.initialState.row = row
         self.initialState.col = col
 
+    def getInitialState(self):
+        """Retorna o estado inicial.
+        @return estado inicial."""
+        return self.initialState
+
+    def getMaxRows(self):
+        return self.maxRows
+
+    def getMaxColumns(self):
+        return self.maxColumns
+        
     def defGoalState(self, row, col):
         """Define o estado objetivo.
         @param row: linha do estado objetivo.
