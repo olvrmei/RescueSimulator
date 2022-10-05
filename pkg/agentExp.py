@@ -38,7 +38,8 @@ class AgentExp:
 
         # Mapa do ambiente
         # Inicialmente define como livre todas as posições
-        self.mazeMap = [[""] * self.model.rows] * self.model.columns
+
+        self.mazeMap = [["" for _ in range(self.model.columns)] for _ in range(self.model.rows)]
         for r in range(0, model.rows):
             for c in range(0, model.columns):
                 self.updateMazeMap([r,c],"unknown")
@@ -137,6 +138,8 @@ class AgentExp:
         ## Verifica se a execução do acao do ciclo anterior funcionou ou nao
         if not (self.currentState == self.expectedState):
             print("---> erro na execucao da acao ", self.previousAction, ": esperava estar em ", self.expectedState, ", mas estou em ", self.currentState)
+            
+            self.updateMazeMap([self.expectedState.row, self.expectedState.col], "obstacle")
 
 
         ## Funcionou ou nao, vou somar o custo da acao com o total 
@@ -153,10 +156,14 @@ class AgentExp:
         victimId = self.victimPresenceSensor()
         if victimId > 0:
             print ("vitima encontrada em ", self.currentState, " id: ", victimId, " sinais vitais: ", self.victimVitalSignalsSensor(victimId))
-            print ("vitima encontrada em ", self.currentState, " id: ", victimId, " dif de acesso: ", self.victimDiffOfAcessSensor(victimId))
-            self.updateVictimsData(victimId, self.victimVitalSignalsSensor(victimId), self.victimDiffOfAcessSensor(victimId))
-            self.updateMazeMap(self.currentState, str(victimId))
+            # print ("vitima encontrada em ", self.currentState, " id: ", victimId, " dif de acesso: ", self.victimDiffOfAcessSensor(victimId))
+            self.updateVictimsData(victimId, self.victimVitalSignalsSensor(victimId))
+            self.updateMazeMap([self.currentState.row, self.currentState.col], str(victimId))
+        
+        if self.mazeMap[self.currentState.row][self.currentState.col] == "unknown":
+            self.updateMazeMap([self.currentState.row, self.currentState.col], "livre")
 
+        print(self.mazeMap)
         ## Define a proxima acao a ser executada
         ## currentAction eh uma tupla na forma: <direcao>, <state>
         result = self.plan.chooseAction()
@@ -216,8 +223,8 @@ class AgentExp:
     def actionDo(self, posAction, action = True):
         self.model.do(posAction, action)
 
-    def updateVictimsData(self, victimId, vitalSigns, diffAccess):
-        self.victimsData[victimId] = [vitalSigns, diffAccess]
+    def updateVictimsData(self, victimId, vitalSigns):
+        self.victimsData[victimId] = [vitalSigns]
 
     def updateMazeMap(self, pos, label):
         """
