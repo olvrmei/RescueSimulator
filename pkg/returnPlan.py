@@ -5,7 +5,7 @@ import copy
 
 class ReturnPlan:
 
-    def __init__(self, problem, initialState, name = "retornaParaBase"):
+    def __init__(self, problem, initialState, mazeMap, name = "retornaParaBase"):
 
         # inicializa variáveis
         self.problem = problem
@@ -13,6 +13,7 @@ class ReturnPlan:
         self.currentState = initialState
         self.goalState = problem.getInitialState()
         self.name = name
+        self.mazeMap = mazeMap
 
         # inicializa heurísticas
         self.openList = [(self.initialState.row, self.initialState.col)]
@@ -28,6 +29,7 @@ class ReturnPlan:
                 self.gHeuristic[(i,j)] = math.inf
                 self.fHeuristic[(i,j)] = math.inf
         self.gHeuristic[(self.initialState.row, self.initialState.col)] = 0
+        self.fHeuristic[(self.initialState.row, self.initialState.col)] = self.calculateHeuristics((self.initialState.row, self.initialState.col))
         
         self.path = self.calculatePath()
         self.totalCost = self.calculateCost()
@@ -35,7 +37,7 @@ class ReturnPlan:
     def calculateHeuristics(self, currentState):
         # Calcula as heurísticas(h(n)) do estado atual -> distância de Manhattan = |x1-x2| + |y1-y2|
         if self.goalState and currentState:
-            return abs(currentState.row - self.goalState.row) + abs(currentState.col - self.goalState.col)
+            return abs(currentState[0] - self.goalState.row) + abs(currentState[1] - self.goalState.col)
 
     def getLowestF(self):
         # Retorna o nó com menor f(n) da lista aberta
@@ -53,17 +55,24 @@ class ReturnPlan:
         while currentState in self.lastCoordinate.keys():
             path.append(currentState)
             currentState = self.lastCoordinate[currentState]
-        path = path.reversed()
-        path.pop(0) # remove o estado inicial
+        # print("path: ", path)
+        path.reverse()
+        # print("path reversed: ", path)
+        # if path != []:
+        #     path.pop(0) # remove o estado inicial
         return path
 
     def updateCurrentState(self, newState):
         self.currentState = newState
 
     def calculatePath(self):
+        # print("openList: ", self.openList)
+
         while len(self.openList) > 0:
             # pega o nó com menor f(n) da lista aberta
             currentNode = self.getLowestF()
+            # print("current node: ",currentNode)
+            # print("goal state:", self.goalState)
 
             # se o nó atual é o objetivo, retorna o caminho
             if currentNode == (self.goalState.row, self.goalState.col):
@@ -84,7 +93,7 @@ class ReturnPlan:
                     if tentativeG < self.gHeuristic[neighbor]:
                         self.lastCoordinate[neighbor] = currentNode
                         self.gHeuristic[neighbor] = tentativeG
-                        self.fHeuristic[neighbor] = tentativeG + self.calculateHeuristics(neighbor)
+                        self.fHeuristic[neighbor] = tentativeG + self.calculateHeuristics((neighbor[0], neighbor[1]))
                         if neighbor not in self.openList:
                             self.openList.append(neighbor)
         return []
@@ -131,6 +140,9 @@ class ReturnPlan:
     def getPlanCost(self):
         return self.totalCost
 
+    def getPath(self):
+        return self.path
+
 # TODO: Verificar se ta certo
     def neighborNodeCost(self, currentState, neighborNode, offset):
         # Calcula o custo para chegar no nó vizinho
@@ -143,7 +155,7 @@ class ReturnPlan:
             return 1
         
         # se está indo na diagonal, não pode se mover ou obstaculos no caminho
-        isPossibleToMove = self.isPossibleToMove((currentState.row - offset[0], currentState.col)) and self.isPossibleToMove((currentState.row, currentState.col - offset[1]))
+        isPossibleToMove = self.isPossibleToMove((currentState[0] - offset[0], currentState[1])) and self.isPossibleToMove((currentState[0], currentState[1] - offset[1]))
 
         if not isPossibleToMove:
             return math.inf
@@ -152,10 +164,10 @@ class ReturnPlan:
 
 # TODO: Verificar se ta certo
     def isCoordinateValid(self, position):
-        return position.row >= 0 and position.row < self.problem.getMaxRows() and position.col >= 0 and position.col < self.problem.getMaxColumns()
+        return position[0] >= 0 and position[0] < self.problem.getMaxRows() and position[1] >= 0 and position[1] < self.problem.getMaxColumns()
 
 # TODO: Verificar se ta certo
     def isPossibleToMove(self, position):
-        return self.problem.mazeBelief[position.row][position.col] >= 0 and self.isCoordinateValid(position)
+        return self.mazeMap[position[0]][position[1]] != "unknown" and self.mazeMap[position[0]][position[1]] != "obstacle" and self.isCoordinateValid(position)
 
 

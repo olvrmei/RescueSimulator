@@ -51,6 +51,9 @@ class Problem:
         """Retorna o custo da ação.
         @param action:
         @return custo da ação"""
+        if action == "victim":
+            return 2
+
         if (action=="nop"):
             return 0
 
