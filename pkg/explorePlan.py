@@ -26,17 +26,13 @@ class ExplorePlan:
                 self.unbacktracked[(i,j)] = []
     
 
-    def setWalls(self, walls):
-        row = 0
-        col = 0
-        for i in walls:
-            col = 0
-            for j in i:
-                if j == 1:
-                    self.walls.append((row, col))
-                col += 1
-            row += 1
-       
+    def updateWalls(self, pos_x, pos_y):
+        """ Adiciona uma parede no labirinto 
+        @param pos_x: posicao x da parede
+        @param pos_y: posicao y da parede
+        """
+        self.walls.append((pos_x, pos_y))
+        
 
     def isPossibleToMove(self, toState):
         """Verifica se eh possivel ir da posicao atual para o estado (lin, col) considerando 
@@ -110,6 +106,7 @@ class ExplorePlan:
             rand = randint(0, len(possibilities) - 1)
             movDirection = possibilities[rand]
             possibilities.pop(rand)
+            self.untried[currentPos] = possibilities 
             state = State(currentPos[0] + movePos[movDirection][0], currentPos[1] + movePos[movDirection][1])
             return (movDirection, state)
         

@@ -11,6 +11,7 @@ sys.path.append(os.path.join("pkg"))
 from model import Model
 from agentRnd import AgentRnd
 from agentExp import AgentExp
+from agentSoc import AgentSoc
 
 
 
@@ -111,7 +112,7 @@ def main():
     # model.setGoalPos(model.maze.board.posGoal[0],model.maze.board.posGoal[1])  
     model.draw()
 
-    # Cria um agente
+    # Cria o agente explorador
     # agent = AgentRnd(model, configData.ambiente)
     agentExp = AgentExp(model, configData.ambiente)
 
@@ -123,6 +124,15 @@ def main():
     model.draw()  
 
     desempenhoAgenteExplorador(model, agentExp)
+    # Cria o agente socorrista
+    agentSoc = agentSoc(model, configData.ambiente, agentExp.getMazeMap())
+
+    agentSoc.deliberate()
+    while agentSoc.deliberate() != -1:
+        model.draw()
+        time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+    model.draw()  
+
 
     ## agente explorador
         # agente delibera
@@ -150,6 +160,7 @@ def main():
     #     time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
     # model.draw()    
     time.sleep(10)
+
 if __name__ == '__main__':
     main()
 

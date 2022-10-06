@@ -5,6 +5,7 @@
 ### Executa raciocíni on-line: percebe --> [delibera] --> executa ação --> percebe --> ...
 import sys
 import os
+from pandas import DataFrame
 
 from pkg.returnPlan import ReturnPlan
 
@@ -144,6 +145,8 @@ class AgentExp:
             print("---> erro na execucao da acao ", self.previousAction, ": esperava estar em ", self.expectedState, ", mas estou em ", self.currentState)
             
             self.updateMazeMap([self.expectedState.row, self.expectedState.col], "obstacle")
+            self.plan.updateWalls(self.expectedState.row, self.expectedState.col)
+
 
 
         ## Funcionou ou nao, vou somar o custo da acao com o total 
@@ -172,7 +175,7 @@ class AgentExp:
             self.updateMazeMap([self.currentState.row, self.currentState.col], str(victimId))
         
         if self.mazeMap[self.currentState.row][self.currentState.col] == "unknown":
-            self.updateMazeMap([self.currentState.row, self.currentState.col], "livre")
+            self.updateMazeMap([self.currentState.row, self.currentState.col], "free")
 
         self.printMazeMap()
 
@@ -206,8 +209,9 @@ class AgentExp:
 
     def printMazeMap(self):
         print("\nMapa atual: \n")
-        for row in self.mazeMap:
-            print(row, "\n")
+        print(DataFrame(self.mazeMap))
+        #for row in self.mazeMap:
+        #    print(row, "\n")
 
     ## Metodo que executa as acoes
     def executeGo(self, action):
