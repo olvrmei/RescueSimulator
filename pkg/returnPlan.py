@@ -164,10 +164,11 @@ class ReturnPlan:
 
 # TODO: Verificar se ta certo
     def isCoordinateValid(self, position):
-        return position[0] >= 0 and position[0] < self.problem.getMaxRows() and position[1] >= 0 and position[1] < self.problem.getMaxColumns()
+        return position[0] >= 0 and position[0] < len(self.mazeMap) and position[1] >= 0 and position[1] < len(self.mazeMap[0])
 
-# TODO: Verificar se ta certo
+
     def isPossibleToMove(self, position):
-        return self.mazeMap[position[0]][position[1]] != "unknown" and self.mazeMap[position[0]][position[1]] != "obstacle" and self.isCoordinateValid(position)
+        return self.isCoordinateValid(position) and self.mazeMap[position[0]][position[1]] != "unknown" and self.mazeMap[position[0]][position[1]] != "obstacle"
+
 
 

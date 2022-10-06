@@ -40,10 +40,12 @@ class AgentExp:
         # Mapa do ambiente
         # Inicialmente define como livre todas as posições
 
-        self.mazeMap = [["" for _ in range(self.model.columns)] for _ in range(self.model.rows)]
-        for r in range(0, model.rows):
-            for c in range(0, model.columns):
-                self.updateMazeMap([r,c],"unknown")
+        # self.mazeMap = [["" for _ in range(self.model.columns)] for _ in range(self.model.rows)]
+        # for r in range(0, model.rows):
+        #     for c in range(0, model.columns):
+        #         self.updateMazeMap([r,c],"unknown")
+
+        
 
         ## Obtem o tempo que tem para executar
         self.tl = configDict["Te"]
@@ -62,6 +64,10 @@ class AgentExp:
         initial = self.positionSensor()
         self.prob.defInitialState(initial.row, initial.col)
         print("*** Estado inicial do agente: ", self.prob.initialState)
+
+        self.mazeMap = [["unknown" for _ in range(0,initial.col+1)] for _ in range(0,initial.row+1)]
+
+        self.printMazeMap()
         
         # Define o estado atual do agente = estado inicial
         self.currentState = self.prob.initialState
@@ -95,6 +101,8 @@ class AgentExp:
         ## inicializa acao do ciclo anterior com o estado esperado
         self.previousAction = "nop"    ## nenhuma (no operation)
         self.expectedState = self.currentState
+
+
 
     ## Metodo que define a deliberacao do agente 
     def deliberate(self):
@@ -159,7 +167,7 @@ class AgentExp:
         
         ## Verifica se tem vitima na posicao atual    
         victimId = self.victimPresenceSensor()
-        if victimId > 0 and self.mazeMap[self.currentState.row][self.currentState.col] != victimId:
+        if victimId > 0 and (not self.positionExistsOnMazeMap(self.currentState) or self.mazeMap[self.currentState.row][self.currentState.col] != victimId):
             print ("vitima encontrada em ", self.currentState, " id: ", victimId, " sinais vitais: ", self.victimVitalSignalsSensor(victimId))
 
             # atualiza custo total
@@ -174,7 +182,7 @@ class AgentExp:
             self.updateVictimsData(victimId, self.victimVitalSignalsSensor(victimId))
             self.updateMazeMap([self.currentState.row, self.currentState.col], str(victimId))
         
-        if self.mazeMap[self.currentState.row][self.currentState.col] == "unknown":
+        if  not self.positionExistsOnMazeMap(self.currentState) or self.mazeMap[self.currentState.row][self.currentState.col] == "unknown":
             self.updateMazeMap([self.currentState.row, self.currentState.col], "free")
 
         self.printMazeMap()
@@ -200,12 +208,20 @@ class AgentExp:
         result = self.plan.chooseAction()
         print("Ag deliberou pela acao: ", result[0], " o estado resultado esperado é: ", result[1])
 
+        if self.previousAction == "nop" and result[0] == "nop":
+            print("Nao ha mais acoes a serem executadas")
+            return -1
         ## Executa esse acao, atraves do metodo executeGo 
         self.executeGo(result[0])
         self.previousAction = result[0]
         self.expectedState = result[1]       
 
         return 1
+
+    def positionExistsOnMazeMap(self, position):
+        if position.row >= 0 and position.row < len(self.mazeMap) and position.col >= 0 and position.col < len(self.mazeMap[0]):
+            return True
+        return False
 
     def printMazeMap(self):
         print("\nMapa atual: \n")
@@ -264,6 +280,15 @@ class AgentExp:
         self.victimsData[victimId] = vitalSigns
 
     def updateMazeMap(self, pos, label):
+
+
+
+        if len(self.mazeMap) < pos[0] + 1:
+            self.mazeMap.append(["unknown" for _ in range(len(self.mazeMap[0]))])
+        
+        if len(self.mazeMap[0]) < pos[1] + 1:
+            for row in self.mazeMap:
+                row.append("unknown")
         """
         Map labels: unknown | obstacle | victimId
         """
@@ -290,3 +315,6 @@ class AgentExp:
 
     def getVictimsData(self):
         return self.victimsData
+
+    def getMazeMap(self):
+        return self.mazeMap

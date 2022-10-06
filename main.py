@@ -125,7 +125,7 @@ def main():
 
     desempenhoAgenteExplorador(model, agentExp)
     # Cria o agente socorrista
-    agentSoc = agentSoc(model, configData.ambiente, agentExp.getMazeMap())
+    agentSoc = AgentSoc(model, configData.ambiente, agentExp.getMazeMap())
 
     agentSoc.deliberate()
     while agentSoc.deliberate() != -1:
