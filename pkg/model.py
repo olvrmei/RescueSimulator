@@ -197,4 +197,5 @@ class Model:
         self.maze.board.listPlaces[posAction[0]][posAction[1]].doAction(action)
         return True
 
-        
+    def getVictimsVitalSignals(self):
+        return self.maze.vitalSignals

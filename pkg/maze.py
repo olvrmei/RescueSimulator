@@ -95,8 +95,7 @@ class Maze:
                     if vs_line:
                         values = [float(signal) for signal in vs_line.split(" ")]
                         print("sinais vitais da vitima em (", pos[0], ",", pos[1], ") : ", values)
-                        self.vitalSignals.append([])
-                        self.vitalSignals[self.numberOfVictims-1].append(values)
+                        self.vitalSignals.append(values)
                     else:
                         print("!!! warning: número de vítimas do ambiente maior do que número de sinais vitais")
                 

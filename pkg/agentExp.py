@@ -257,7 +257,7 @@ class AgentExp:
         self.model.do(posAction, action)
 
     def updateVictimsData(self, victimId, vitalSigns):
-        self.victimsData[victimId] = [vitalSigns]
+        self.victimsData[victimId] = vitalSigns
 
     def updateMazeMap(self, pos, label):
         """
@@ -277,3 +277,12 @@ class AgentExp:
                 print("Custo total do caminho de retorno para a base: ", plan.getPlanCost(), "\n")
                 self.libPlan.pop(0)
                 self.libPlan.append(plan)
+
+    def getNumberOfVictimsFound(self):
+        return len(self.victimsData)
+
+    def getTotalCost(self):
+        return self.costAll
+
+    def getVictimsData(self):
+        return self.victimsData

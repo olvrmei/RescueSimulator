@@ -1,4 +1,5 @@
 from distutils.command.config import config
+from ipaddress import v4_int_to_packed
 import sys
 import os
 import time
@@ -23,6 +24,68 @@ def buildMaze(model):
     ## Atualiza o labirinto
     model.updateMaze()
 
+def desempenhoAgenteExplorador(model, agentExp):
+    # Resultados do agente explorador
+    print("*** Desempenho Agente Explorador ***")
+
+    numeroVitimasEncontradas = agentExp.getNumberOfVictimsFound()
+    totalVitimas = model.getNumberOfVictims()
+
+    #  pve
+    pve = numeroVitimasEncontradas / totalVitimas
+    print("Porcentual de vítimas encontradas(pve): ", pve)
+
+    # tve
+    if numeroVitimasEncontradas > 0:
+        tve = agentExp.getTotalCost() / numeroVitimasEncontradas
+    else:
+        tve = 0
+
+    print("Tempo por vítima encontrada(tve): ", tve)
+
+    # veg
+
+    dadosVitimasEncontradas = agentExp.getVictimsData()
+
+    ve1 = []
+    ve2 = []
+    ve3 = []
+    ve4 = []
+
+    if len(dadosVitimasEncontradas) > 0:
+        for vitima in dadosVitimasEncontradas.keys():
+            if dadosVitimasEncontradas[vitima][7] == 1.0:
+                ve1.append(vitima)
+            elif dadosVitimasEncontradas[vitima][7] == 2.0:
+                ve2.append(vitima)
+            elif dadosVitimasEncontradas[vitima][7] == 3.0:
+                ve3.append(vitima)
+            elif dadosVitimasEncontradas[vitima][7] == 4.0:
+                ve4.append(vitima)
+
+    dadosVitimas = model.getVictimsVitalSignals()
+
+    V1 = []
+    V2 = []
+    V3 = []
+    V4 = []
+
+    if len(dadosVitimas) > 0:
+        for vitima in dadosVitimas:
+            if vitima[7] == 1.0:
+                V1.append(vitima)
+            elif vitima[7] == 2.0:
+                V2.append(vitima)
+            elif vitima[7] == 3.0:
+                V3.append(vitima)
+            elif vitima[7] == 4.0:
+                V4.append(vitima)
+    
+    veg = (4 * len(ve1) + 3 * len(ve2) + 2 * len(ve3) + len(ve4)) / (4 * len(V1) + 3 * len(V2) + 2 * len(V3) + len(V4))
+
+    print("Porcentual ponderado de vítimas encontradas por extrato de gravidade: ", veg)
+
+
 def main():
 
     configData = Data("./config_data/ambiente.txt", "./config_data/sinaisvitais.txt")
@@ -43,7 +106,7 @@ def main():
     # Define a posição inicial do agente no ambiente - corresponde ao estado inicial
     model.setAgentPos(model.maze.board.posAgent[0],model.maze.board.posAgent[1])
 
-    model.updateMaze()
+    # model.updateMaze()
 
     # model.setGoalPos(model.maze.board.posGoal[0],model.maze.board.posGoal[1])  
     model.draw()
@@ -59,6 +122,7 @@ def main():
         time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
     model.draw()  
 
+    desempenhoAgenteExplorador(model, agentExp)
 
     ## agente explorador
         # agente delibera
@@ -88,3 +152,6 @@ def main():
     time.sleep(10)
 if __name__ == '__main__':
     main()
+
+
+    
