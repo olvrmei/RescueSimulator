@@ -1,8 +1,9 @@
 from random import randint
 from state import State
+from AlgoritimoGenetico import AlgoritmoGenetico
 
 class SocPlan:
-    def __init__(self, maxRows, maxColumns, goal, initialState, name = "none", mesh = "square"):
+    def __init__(self, maxRows, maxColumns, goal, initialState, name = "none", mesh = "square", mazeMap, victims, time):
         """
         Define as variaveis necessárias para a utilização do random plan por um unico agente.
         """
@@ -13,20 +14,61 @@ class SocPlan:
         self.currentState = initialState
         self.goalPos = goal
         self.actions = []
+        self.mazeMap = mazeMap
+        self.victims = victims
+        self.time = time
+        self.graph = []
+        self.dists = []
 
-    
-    def setWalls(self, walls):
-        row = 0
-        col = 0
-        for i in walls:
-            col = 0
-            for j in i:
-                if j == 1:
-                    self.walls.append((row, col))
-                col += 1
-            row += 1
+        # Inicia matriz
+        for i in range(self.maxRows):
+            col = []
+            for j in range(self.maxColumns):
+                col.append([])
+            self.graph.append(col)   
+
+        for row in range(self.maxRows):
+            for col in range(self.maxColumns):
+                for dir in ["N", "S", "L", "O"]:
+                    if self.isPossibleToMove(State(row, col)):
+                        self.graph[row][col].append(dir)
        
+        self.algoritmoGen = AlgoritmoGenetico(self.graph, self.maxRows, self.maxColumns, self.dists, self.victims, self.time, self.initialState)
+
+        self.algoritmoGen.calculate()
+        self.actions = self.algoritmoGen.getBestSolution()
+        print(self.actions)
+
+    def getVictimsDist(self):
+        for i in range(len(self.victims)):
+            col = []
+            for j in range(len(self.victims)):
+                col.append(None)
+            self.dists.append(col)
         
+        for i in range(len(self.victims)):
+            pos_x = self.victims[i][0]
+            self.dists[i][i] = 0
+            for j in range(i+1, len(self.victims)):
+                pos_y = self.victims[j][0]
+                res = self.calculateCost(pos_x, pos_y)
+                self.dists[i][j] = res
+                reverse_path = [self.reverse(x) for x in res[1]]
+                self.dists[j][i] = (res[0], reverse_path)
+
+    def reverse(self, direction):
+        if direction == "N":
+            return "S"
+        elif direction == "S":
+            return "N"
+        elif direction == "L":
+            return "O"
+        elif direction == "O":
+            return "L"
+
+    def calculateCost(self, pos_x, pos_y):
+        pass
+
     def updateCurrentState(self, state):
          self.currentState = state
 
@@ -62,18 +104,14 @@ class SocPlan:
         
         return True
 
-    def randomizeNextPosition(self):
+    def nextPosition(self):
          """ Sorteia uma direcao e calcula a posicao futura do agente 
          @return: tupla contendo a acao (direcao) e o estado futuro resultante da movimentacao """
-         possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
+         possibilities = ["N", "S", "L", "O"]
          movePos = { "N" : (-1, 0),
                     "S" : (1, 0),
                     "L" : (0, 1),
-                    "O" : (0, -1),
-                    "NE" : (-1, 1),
-                    "NO" : (-1, -1),
-                    "SE" : (1, 1),
-                    "SO" : (1, -1)}
+                    "O" : (0, -1)}
 
          rand = randint(0, 7)
          movDirection = possibilities[rand]

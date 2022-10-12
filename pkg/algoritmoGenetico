@@ -1,0 +1,257 @@
+import random
+
+class AlgoritmoGenetico:
+    def __init__(self, graph, maxRows, maxCols, dists, victims, time, initialState):
+        self.graph = graph
+        self.maxRows = maxRows
+        self.maxCols = maxCols
+        self.dists = dists
+        self.victims = [(i, x, y) for i, (x,y) in enumerate(victims)] # index, position, vital signs
+        self.time = time
+        self.initialState = initialState
+
+        # Inicia parametros do algoritmo
+        self.mutationC = 0.2 # 20% de chance de mutação
+        self.crossoverC = 0.6 # 60% de chance de crossover
+        self.popSize = len(self.victims) * 2 # Tamanho da população
+        self.swap = 0.5 # 50% de chance de trocar dois genes
+        self.add_rm = 0.5 # 50% de chance de adicionar ou remover um gene
+        self.max_it = 2 # Número máximo de iterações sem melhoria
+
+        # Calcula o fitness
+        self.fit = self.fitness(self.victims)
+        self.fit = 1/self.fit
+
+        # Cria população inicial
+        self.population = []
+        while len(self.population) < self.popSize:
+            chromosome = self.generateChromosome()
+            self.population.append(chromosome)
+
+
+    def fitness(self, victims):
+        # Gravidades %  [25, 50, 75, 100]
+        victimsGrav = [0,0,0,0]
+        for v in victims:
+            sv = v[2] # sinal vital da vítima
+            # TO DO
+            gravidade = sv[len(sv)-1] * 100
+            index = 0
+            if gravidade <= 25 and gravidade > 0:
+                index += 0
+            if gravidade <= 50 and gravidade > 25:
+                index += 1
+            if gravidade <= 75 and gravidade > 50:
+                index += 1
+            if gravidade <= 100 and gravidade > 75:
+                index += 1
+            victimsGrav[index] += 1
+        x = 0
+        for i,valor in enumerate(victimsGrav):
+            x += (i+1) * valor
+        return x*self.fit
+    
+    def crossover(self, i1, i2, newFit):
+        if random.uniform(0,1) > self.crossoverC:
+            # TO DO
+            if random.uniform(0,1) > 0.5:
+                return self.mutation(i1, self.mutationC)
+            else:
+                return self.mutation(i2, self.mutationC)
+
+        v1 = random.sample(i1.victims, random.randint(0, len(i1.victims))).copy()
+        v2 = random.sample(i2.victims, random.randint(0, len(i2.victims))).copy()
+
+        newVictims = v1
+        for v in v2:
+            exits = False
+            for v in newVictims:
+                if v[0] == v[0]:
+                    exits = True
+                else:
+                    exits = False
+            
+            if not exits:
+                newVictims.append(v)
+
+        res = self.calculateChromosomeCost(newVictims)
+        while res[0] > self.time:
+            newVictims = random.sample(newVictims, len(newVictims)-1)
+            res = self.calculateChromosomeCost(newVictims)
+        
+        fit = self.fitness(newVictims)
+        chromosome = Chromosome(newVictims, res[0], res[1], fit)
+        
+        return self.mutation(chromosome)
+
+    def mutation(self, chromosome):
+        if random.uniform(0,1) > self.mutationC:
+            return chromosome
+        newVitcims = chromosome.victims.copy()
+
+        # Swap dos genes
+        if random.uniform(0,1) <= self.swap:
+            newVitcims = self.swapGenes(newVitcims)
+        
+        # Adiciona ou remove mutação
+        if random.uniform(0,1) <= self.add_rm:
+            newVitcims = self.addRemoveGene(newVitcims, 0.5)
+        
+        res = self.calculateChromosomeCost(newVitcims)
+        while res[0] > self.time:
+            # Swap
+            if random.uniform(0,1) <= self.swap:
+                newVitcims = self.swapGenes(newVitcims)
+            # Add ou Remove
+            if random.uniform(0,1) <= self.add_rm:
+                newVitcims = self.addRemoveGene(newVitcims, 0.75)
+            
+            newVitcims = random.sample(newVitcims, len(newVitcims)-1)
+            res = self.calculateChromosomeCost(newVitcims)
+        fit = self.fitness(newVitcims)
+        chromosome = Chromosome(newVitcims, res[0], res[1], fit)
+        return self.mutation(chromosome)
+        
+
+    def swapGenes(self, victims):
+        i = victims.index(random.choice(victims))
+        j = victims.index(random.choice(victims))
+        
+        newVictims = victims.copy()
+        newVictims[i], newVictims[j] = newVictims[j], newVictims[i]
+        return newVictims
+
+    def addRemoveGene1(self, victims, chance):
+        if random.uniform(0,1) <= chance:
+            # Adiciona um gene
+            victims.append(random.choice(self.victims))
+        else:
+            # Remove um gene
+            victims.pop(random.randint(0, len(victims)-1))
+        return victims
+
+    def addRemoveGene(self, victims, chance):
+        if random.uniform(0,1) <= chance:
+            # Adiciona um gene
+            if len(victims) == len(self.victims):
+                return victims
+            newVictim = random.choice(self.victims)
+            x = [v for v in victims if v[0] == newVictim[0]]
+            while len(x) > 0:
+                newVictim = random.choice(self.victims)
+                x = [v for v in victims if v[0] == newVictim[0]]
+            newVictims = victims.copy()
+            newVictims.append(newVictim)
+            return newVictims
+        else:
+            # Remove um gene
+            if len(victims) < 2:
+                return victims
+            newVictims = random.sample(victims, len(victims)-1).copy()            
+            return newVictims
+
+
+    def sortPopulation(self):
+        self.population.sort(key=lambda x: x.fit, reverse=True)
+
+    def evolution(self):
+        # Seleção
+        middleIndex = len(self.population) // 2
+        newPop = self.population[:middleIndex]
+        max_fit = newPop[0].fit
+
+        # Enquanto a população não estiver completa
+        i=0
+        while len(newPop) < self.popSize:
+            if i+1 < len(newPop):
+                # Seleciona um índice aleatório
+                j = i + random.randint(i+1, len(newPop)-1) 
+                newFit = newPop[j].fit/(max_fit)
+
+                # Crossover
+                x = self.crossover(newPop[i], newPop[j], newFit)
+                newPop.append(x)
+            else:
+                # Mutação
+                x = self.mutation(newPop[i])
+                newPop.append(x)
+
+        self.population = newPop
+
+    
+    def generateChromosome(self):
+        victims = self.victims.copy()
+        flag = False
+        chromosome = None
+        random.shuffle(victims)
+        while not flag:
+            victims.pop()
+            res = self.calculateChromosomeCost(victims)
+            if res[0] <= self.time:
+                flag = True
+                fit = self.fitness(victims)
+                chromosome = Chromosome(victims, res[0], res[1], fit)
+        return chromosome
+
+    def calculateChromosomeCost(self, victims):
+        cost = 0
+        path = []
+        prevVictim = None
+
+        if len(victims) < 1:
+            return (cost, path)
+        
+        for v in victims:
+            v1 = v
+            if prevVictim:
+                v2 = prevVictim
+                # Calcula saindo da vítima anterior para a próxima
+                res = self.calculate(v2[1], v1[1])
+                cost += res[0]
+                path += res[1]
+            else:
+                # Calcula saindo da posição inicial até a vítima
+                res = self.calculate(self.initialState, v1[1])
+                cost += res[0]
+                path += res[1]
+            prevVictim = v1
+        
+        # Calcula saindo da última vítima até a posição inicial
+        res = self.calculate(prevVictim[1], self.initialState)
+        cost += res[0]
+        path += res[1]
+        return cost, path
+
+    def validChromosome(self, chromosome):
+        res = self.calculateChromosomeCost(chromosome)
+        return res[0] < self.time
+
+    def calculate(self):
+        # Ordena população de acordo com o fitness
+        self.sortPopulation()
+        # Pega maior fitness
+        biggestFit = self.population[0].fit
+        # Enquanto não atingir o máximo de iterações e o fitness não for 1
+        i = 0
+        while i < self.max_it and biggestFit < 1: 
+            self.evolution()
+            self.sortPopulation()
+            if self.population[0].fit > biggestFit:
+                biggestFit = self.population[0].fit
+                i = 0
+            else:
+                i += 1
+
+    def getBestSolution(self):
+        return self.population[0].path
+
+class Chromosome:
+    def __init__(self, victims, cost, path, fit):
+        self.victims = victims
+        self.fit = fit
+        self.cost = cost
+        self.path = path
+
+    # Overload less than operator
+    def __lt__(self, other):
+        return self.fit < other.fit

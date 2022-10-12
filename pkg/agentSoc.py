@@ -18,7 +18,7 @@ from socPlan import SocPlan
 
 ## Classe que define o Agente
 class AgentSoc:
-    def __init__(self, model, configDict, mazeMap):
+    def __init__(self, model, configDict, mazeMap, victims):
         """ 
         Construtor do agente socorrista
         @param model referencia o ambiente onde o agente estah situado
@@ -28,6 +28,7 @@ class AgentSoc:
 
         ## Obtem o mapa do ambiente
         self.mazeMap = mazeMap
+        self.rescuedVictims = []
 
         ## Obtem o tempo que tem para executar
         self.tl = configDict["Ts"]
@@ -54,7 +55,7 @@ class AgentSoc:
         # self.prob.defGoalState(randint(0,model.rows-1), randint(0,model.columns-1))
         
         # definimos um estado objetivo que veio do arquivo ambiente.txt
-        # self.prob.defGoalState(model.maze.board.posGoal[0],model.maze.board.posGoal[1])
+        self.prob.defGoalState(model.maze.board.posGoal[0],model.maze.board.posGoal[1])
         # print("*** Objetivo do agente: ", self.prob.goalState)
         print("*** Total de vitimas existentes no ambiente: ", self.model.getNumberOfVictims())
 
@@ -67,7 +68,7 @@ class AgentSoc:
         self.costAll = 0
 
         ## Cria a instancia do plano para se movimentar aleatoriamente no labirinto (sem nenhuma acao) 
-        self.plan = SocPlan(model.rows, model.columns, self.prob.goalState, initial, "goal", self.mesh)
+        self.plan = SocPlan(model.rows, model.columns, self.prob.goalState, initial, "goal", self.mesh, mazeMap, victims, self.tl)
 
         ## adicionar crencas sobre o estado do ambiente ao plano - neste exemplo, o agente faz uma copia do que existe no ambiente.
         ## Em situacoes de exploracao, o agente deve aprender em tempo de execucao onde estao as paredes
@@ -79,6 +80,8 @@ class AgentSoc:
         ## inicializa acao do ciclo anterior com o estado esperado
         self.previousAction = "nop"    ## nenhuma (no operation)
         self.expectedState = self.currentState
+
+
 
     ## Metodo que define a deliberacao do agente 
     def deliberate(self):
@@ -110,15 +113,16 @@ class AgentSoc:
 
         ## Verifica se atingiu o estado objetivo
         ## Poderia ser outra condição, como atingiu o custo máximo de operação
-        if self.prob.goalTest(self.currentState):
-            print("!!! Objetivo atingido !!!")
-            del self.libPlan[0]  ## retira plano da biblioteca
+        #if self.prob.goalTest(self.currentState):
+        #    print("!!! Objetivo atingido !!!")
+        #    del self.libPlan[0]  ## retira plano da biblioteca
         
         ## Verifica se tem vitima na posicao atual    
         victimId = self.victimPresenceSensor()
-        if victimId > 0:
-            print ("vitima encontrada em ", self.currentState, " id: ", victimId, " sinais vitais: ", self.victimVitalSignalsSensor(victimId))
-            print ("vitima encontrada em ", self.currentState, " id: ", victimId, " dif de acesso: ", self.victimDiffOfAcessSensor(victimId))
+        if victimId > 0 and victimId not in self.rescuedVictims:
+            print ("vitima socorrida em ", self.currentState, " id: ", victimId, " sinais vitais: ", self.victimVitalSignalsSensor(victimId))
+            self.rescuedVictims.append(victimId)
+
 
         ## Define a proxima acao a ser executada
         ## currentAction eh uma tupla na forma: <direcao>, <state>
