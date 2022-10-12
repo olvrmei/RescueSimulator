@@ -38,9 +38,10 @@ class Data:
     def loadSinaisVitais(self):
         with open(self.pathSinaisVitais, "r") as file:
             for line in file:
-                line = line.replace("\n", "").split(" ")
-                variables = [float(x) if i>0 else int(x) for i,x in enumerate(line)]
-
+                line = line.replace("\n","").split(" ")
+                print(line)
+                variables = [float(x) if i>0 else float(x) for i,x in enumerate(line)]
+                # variables = [float(x) for x in enumerate(line)]
                 self.sinaisVitais.append(variables)
         # print(self.sinaisVitais)
 

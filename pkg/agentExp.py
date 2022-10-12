@@ -281,8 +281,6 @@ class AgentExp:
 
     def updateMazeMap(self, pos, label):
 
-
-
         if len(self.mazeMap) < pos[0] + 1:
             self.mazeMap.append(["unknown" for _ in range(len(self.mazeMap[0]))])
         

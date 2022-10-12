@@ -125,13 +125,13 @@ def main():
 
     desempenhoAgenteExplorador(model, agentExp)
     # Cria o agente socorrista
-    agentSoc = AgentSoc(model, configData.ambiente, agentExp.getMazeMap())
+    # agentSoc = AgentSoc(model, configData.ambiente, agentExp.getMazeMap())
 
-    agentSoc.deliberate()
-    while agentSoc.deliberate() != -1:
-        model.draw()
-        time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
-    model.draw()  
+    # agentSoc.deliberate()
+    # while agentSoc.deliberate() != -1:
+    #     model.draw()
+    #     time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+    # model.draw()  
 
 
     ## agente explorador

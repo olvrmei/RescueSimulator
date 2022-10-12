@@ -15,7 +15,7 @@ class ExplorePlan:
         self.actions = []
         self.name = name
 
-        self.actions = ["O", "SO", "S", "SE", "L", "NE", "N", "NO"]
+        self.actions = ["O", "S", "L", "N"]
         self.untried = dict()
         self.unbacktracked = dict()
         self.result = dict()
@@ -56,30 +56,29 @@ class ExplorePlan:
             return False
 
         # vai na diagonal? Caso sim, nao pode ter paredes acima & dir. ou acima & esq. ou abaixo & dir. ou abaixo & esq.
-        delta_row = toState.row - self.currentState.row
-        delta_col = toState.col - self.currentState.col
+        # delta_row = toState.row - self.currentState.row
+        # delta_col = toState.col - self.currentState.col
 
         ## o movimento eh na diagonal
-        if (delta_row !=0 and delta_col != 0):
-            if (self.currentState.row + delta_row, self.currentState.col) in self.walls and (self.currentState.row, self.currentState.col + delta_col) in self.walls:
-                return False
+        # if (delta_row !=0 and delta_col != 0):
+        #     if (self.currentState.row + delta_row, self.currentState.col) in self.walls and (self.currentState.row, self.currentState.col + delta_col) in self.walls:
+        #         return False
         
         return True
 
     def randomizeNextPosition(self):
         """ Sorteia uma direcao e calcula a posicao futura do agente 
         @return: tupla contendo a acao (direcao) e o estado futuro resultante da movimentacao """
-        possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
+        # possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
+        possibilities = ["N", "S", "L", "O"]
+
+
         movePos = { "N" : (-1, 0),
                    "S" : (1, 0),
                    "L" : (0, 1),
-                   "O" : (0, -1),
-                   "NE" : (-1, 1),
-                   "NO" : (-1, -1),
-                   "SE" : (1, 1),
-                   "SO" : (1, -1)}
+                   "O" : (0, -1)}
 
-        rand = randint(0, 7)
+        rand = randint(0, 3)
         movDirection = possibilities[rand]
         state = State(self.currentState.row + movePos[movDirection][0], self.currentState.col + movePos[movDirection][1])
 
@@ -89,17 +88,22 @@ class ExplorePlan:
     def nextPosition(self):
         """ Sorteia uma direcao e calcula a posicao futura do agente 
         @return: tupla contendo a acao (direcao) e o estado futuro resultante da movimentacao """
+        # movePos = { "N" : (-1, 0),
+        #            "S" : (1, 0),
+        #            "L" : (0, 1),
+        #            "O" : (0, -1),
+        #            "NE" : (-1, 1),
+        #            "NO" : (-1, -1),
+        #            "SE" : (1, 1),
+        #            "SO" : (1, -1)}
+
         movePos = { "N" : (-1, 0),
                    "S" : (1, 0),
                    "L" : (0, 1),
-                   "O" : (0, -1),
-                   "NE" : (-1, 1),
-                   "NO" : (-1, -1),
-                   "SE" : (1, 1),
-                   "SO" : (1, -1)}
+                   "O" : (0, -1)}
         
         #possibilities = ["N", "S", "L", "O", "NE", "NO", "SE", "SO"]
-        possibilities = self.untried[(self.currentState.row, self.currentState.col)]
+        possibilities = self.untried[(self.currentState.row, self.currentState.col)].copy()
         currentPos = (self.currentState.row, self.currentState.col)
         
         if len(possibilities) > 0:
@@ -116,6 +120,11 @@ class ExplorePlan:
             direction = (lastPos[0] - currentPos[0], lastPos[1] - currentPos[1])
             movDirection = list(movePos.keys())[list(movePos.values()).index(direction)]
             return (movDirection, state)
+        
+        # else: 
+        #     movDirection = "nop"
+        #     state = self.currentState
+        #     return (movDirection, state)
         
         return self.randomizeNextPosition()
 
@@ -161,3 +170,4 @@ class ExplorePlan:
        
         
         
+
