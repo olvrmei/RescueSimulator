@@ -1,9 +1,9 @@
 from random import randint
 from state import State
-from AlgoritimoGenetico import AlgoritmoGenetico
+from pkg.algoritmoGenetico import AlgoritmoGenetico
 
 class SocPlan:
-    def __init__(self, maxRows, maxColumns, goal, initialState, name = "none", mesh = "square", mazeMap, victims, time):
+    def __init__(self, maxRows, maxColumns, goal, initialState, mazeMap, victims, time, name = "none", mesh = "square"):
         """
         Define as variaveis necessárias para a utilização do random plan por um unico agente.
         """
@@ -19,6 +19,8 @@ class SocPlan:
         self.time = time
         self.graph = []
         self.dists = []
+
+        # print("vitimas SocPlan: ", self.victims)
 
         # Inicia matriz
         for i in range(self.maxRows):
@@ -37,7 +39,7 @@ class SocPlan:
 
         self.algoritmoGen.calculate()
         self.actions = self.algoritmoGen.getBestSolution()
-        print(self.actions)
+        print("Melhor solução: ", self.actions)
 
     def getVictimsDist(self):
         for i in range(len(self.victims)):
@@ -119,7 +121,6 @@ class SocPlan:
 
          return movDirection, state
 
-
     def chooseAction(self):
         """ Escolhe o proximo movimento de forma aleatoria. 
         Eh a acao que vai ser executada pelo agente. 
@@ -127,12 +128,22 @@ class SocPlan:
         """
 
         ## Tenta encontrar um movimento possivel dentro do tabuleiro 
-        result = self.randomizeNextPosition()
+        # result = self.randomizeNextPosition()
 
-        while not self.isPossibleToMove(result[1]):
-            result = self.randomizeNextPosition()
+        # while not self.isPossibleToMove(result[1]):
+        #     result = self.randomizeNextPosition()
 
-        return result
+        # return result
+
+        movePos = { "N" : (-1, 0),
+                    "S" : (1, 0),
+                    "L" : (0, 1),
+                    "O" : (0, -1)}
+
+        if len(self.actions) > 0:
+            action = self.actions.pop(0)
+            state = State(self.currentState.row + movePos[action][0], self.currentState.col + movePos[action][1])
+            return action, state
 
 
     def do(self):

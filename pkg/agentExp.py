@@ -179,7 +179,7 @@ class AgentExp:
             print("Tempo disponivel: ", self.tl)
 
             # atualiza o mapa do labirinto
-            self.updateVictimsData(victimId, self.victimVitalSignalsSensor(victimId))
+            self.updateVictimsData(victimId, self.currentState, self.victimVitalSignalsSensor(victimId))
             self.updateMazeMap([self.currentState.row, self.currentState.col], str(victimId))
         
         if  not self.positionExistsOnMazeMap(self.currentState) or self.mazeMap[self.currentState.row][self.currentState.col] == "unknown":
@@ -276,8 +276,8 @@ class AgentExp:
     def actionDo(self, posAction, action = True):
         self.model.do(posAction, action)
 
-    def updateVictimsData(self, victimId, vitalSigns):
-        self.victimsData[victimId] = vitalSigns
+    def updateVictimsData(self, victimId, victimPos, vitalSigns):
+        self.victimsData[victimId] = [(victimPos.row, victimPos.col), vitalSigns]
 
     def updateMazeMap(self, pos, label):
 

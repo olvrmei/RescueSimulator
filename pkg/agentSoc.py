@@ -29,6 +29,7 @@ class AgentSoc:
         ## Obtem o mapa do ambiente
         self.mazeMap = mazeMap
         self.rescuedVictims = []
+        self.rescuedVictimsData = dict()
 
         ## Obtem o tempo que tem para executar
         self.tl = configDict["Ts"]
@@ -37,12 +38,11 @@ class AgentSoc:
         ## Pega o tipo de mesh, que está no model (influência na movimentação)
         self.mesh = self.model.mesh
 
-
         ## Cria a instância do problema na mente do agente (sao suas crencas)
         self.prob = Problem()
         self.prob.createMaze(model.rows, model.columns, model.maze)
       
-    
+
         # O agente le sua posica no ambiente por meio do sensor
         initial = self.positionSensor()
         self.prob.defInitialState(initial.row, initial.col)
@@ -55,7 +55,7 @@ class AgentSoc:
         # self.prob.defGoalState(randint(0,model.rows-1), randint(0,model.columns-1))
         
         # definimos um estado objetivo que veio do arquivo ambiente.txt
-        self.prob.defGoalState(model.maze.board.posGoal[0],model.maze.board.posGoal[1])
+        # self.prob.defGoalState(model.maze.board.posGoal[0],model.maze.board.posGoal[1])
         # print("*** Objetivo do agente: ", self.prob.goalState)
         print("*** Total de vitimas existentes no ambiente: ", self.model.getNumberOfVictims())
 
@@ -68,11 +68,11 @@ class AgentSoc:
         self.costAll = 0
 
         ## Cria a instancia do plano para se movimentar aleatoriamente no labirinto (sem nenhuma acao) 
-        self.plan = SocPlan(model.rows, model.columns, self.prob.goalState, initial, "goal", self.mesh, mazeMap, victims, self.tl)
+        self.plan = SocPlan(model.rows, model.columns, self.prob.goalState, initial, mazeMap, victims, self.tl, "goal", self.mesh)
 
         ## adicionar crencas sobre o estado do ambiente ao plano - neste exemplo, o agente faz uma copia do que existe no ambiente.
         ## Em situacoes de exploracao, o agente deve aprender em tempo de execucao onde estao as paredes
-        self.plan.setWalls(model.maze.walls)
+        # self.plan.setWalls(model.maze.walls)
         
         ## Adiciona o(s) planos a biblioteca de planos do agente
         self.libPlan=[self.plan]
@@ -122,11 +122,14 @@ class AgentSoc:
         if victimId > 0 and victimId not in self.rescuedVictims:
             print ("vitima socorrida em ", self.currentState, " id: ", victimId, " sinais vitais: ", self.victimVitalSignalsSensor(victimId))
             self.rescuedVictims.append(victimId)
+            self.rescuedVictimsData[victimId] = self.victimVitalSignalsSensor(victimId)
 
 
         ## Define a proxima acao a ser executada
         ## currentAction eh uma tupla na forma: <direcao>, <state>
         result = self.plan.chooseAction()
+        if result == None:
+            return -1
         print("Ag deliberou pela acao: ", result[0], " o estado resultado esperado é: ", result[1])
 
         ## Executa esse acao, atraves do metodo executeGo 
@@ -169,11 +172,11 @@ class AgentSoc:
         @return a lista de sinais vitais (ou uma lista vazia se não tem vítima com o id)"""     
         return self.model.getVictimVitalSignals(victimId)
 
-    def victimDiffOfAcessSensor(self, victimId):
-        """Simula um sensor que realiza a leitura dos dados relativos à dificuldade de acesso a vítima
-        @param o id da vítima
-        @return a lista dos dados de dificuldade (ou uma lista vazia se não tem vítima com o id)"""     
-        return self.model.getDifficultyOfAcess(victimId)
+    # def victimDiffOfAcessSensor(self, victimId):
+    #     """Simula um sensor que realiza a leitura dos dados relativos à dificuldade de acesso a vítima
+    #     @param o id da vítima
+    #     @return a lista dos dados de dificuldade (ou uma lista vazia se não tem vítima com o id)"""     
+    #     return self.model.getDifficultyOfAcess(victimId)
     
     ## Metodo que atualiza a biblioteca de planos, de acordo com o estado atual do agente
     def updateLibPlan(self):
@@ -182,3 +185,12 @@ class AgentSoc:
 
     def actionDo(self, posAction, action = True):
         self.model.do(posAction, action)
+
+    def getNumberOfVictimsRescued(self):
+        return len(self.rescuedVictims)
+    
+    def getTotalCost(self):
+        return self.costAll
+
+    def getVictimsData(self):
+        return self.rescuedVictimsData

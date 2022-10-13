@@ -55,13 +55,14 @@ def desempenhoAgenteExplorador(model, agentExp):
 
     if len(dadosVitimasEncontradas) > 0:
         for vitima in dadosVitimasEncontradas.keys():
-            if dadosVitimasEncontradas[vitima][7] == 1.0:
+            # print("Vitima: ",dadosVitimasEncontradas[vitima])
+            if dadosVitimasEncontradas[vitima][1][7] == 1.0:
                 ve1.append(vitima)
-            elif dadosVitimasEncontradas[vitima][7] == 2.0:
+            elif dadosVitimasEncontradas[vitima][1][7] == 2.0:
                 ve2.append(vitima)
-            elif dadosVitimasEncontradas[vitima][7] == 3.0:
+            elif dadosVitimasEncontradas[vitima][1][7] == 3.0:
                 ve3.append(vitima)
-            elif dadosVitimasEncontradas[vitima][7] == 4.0:
+            elif dadosVitimasEncontradas[vitima][1][7] == 4.0:
                 ve4.append(vitima)
 
     dadosVitimas = model.getVictimsVitalSignals()
@@ -86,6 +87,67 @@ def desempenhoAgenteExplorador(model, agentExp):
 
     print("Porcentual ponderado de vítimas encontradas por extrato de gravidade: ", veg)
 
+def desempenhoAgenteScocorrista(model, agentSoc):
+    # Resultados do agente socorrista
+    print("*** Desempenho Agente Socorrista ***")
+
+    numeroVitimasSocorridas = agentSoc.getNumberOfVictimsRescued()
+    totalVitimas = model.getNumberOfVictims()
+
+    #  pvs
+    pvs = numeroVitimasSocorridas / totalVitimas
+    print("Porcentual de vítimas socorridas(pvs): ", pvs)
+
+    # tvs
+    if numeroVitimasSocorridas > 0:
+        tvs = agentSoc.getTotalCost() / numeroVitimasSocorridas
+    else:
+        tvs = 0
+
+    print("Tempo por vítima socorrida(tvs): ", tvs)
+
+    # vsg
+
+    dadosVitimasSocorridas = agentSoc.getVictimsData()
+
+    vs1 = []
+    vs2 = []
+    vs3 = []
+    vs4 = []
+
+    if len(dadosVitimasSocorridas) > 0:
+        for vitima in dadosVitimasSocorridas.keys():
+            # print("Vitima: ",dadosVitimasSocorridas[vitima])
+            if dadosVitimasSocorridas[vitima][7] == 1.0:
+                vs1.append(vitima)
+            elif dadosVitimasSocorridas[vitima][7] == 2.0:
+                vs2.append(vitima)
+            elif dadosVitimasSocorridas[vitima][7] == 3.0:
+                vs3.append(vitima)
+            elif dadosVitimasSocorridas[vitima][7] == 4.0:
+                vs4.append(vitima)
+
+    dadosVitimas = model.getVictimsVitalSignals()
+
+    V1 = []
+    V2 = []
+    V3 = []
+    V4 = []
+
+    if len(dadosVitimas) > 0:
+        for vitima in dadosVitimas:
+            if vitima[7] == 1.0:
+                V1.append(vitima)
+            elif vitima[7] == 2.0:
+                V2.append(vitima)
+            elif vitima[7] == 3.0:
+                V3.append(vitima)
+            elif vitima[7] == 4.0:
+                V4.append(vitima)
+    
+    vsg = (4 * len(vs1) + 3 * len(vs2) + 2 * len(vs3) + len(vs4)) / (4 * len(V1) + 3 * len(V2) + 2 * len(V3) + len(V4))
+
+    print("Porcentual ponderado de vítimas socorridas por extrato de gravidade: ", vsg)
 
 def main():
 
@@ -120,18 +182,20 @@ def main():
     agentExp.deliberate()
     while agentExp.deliberate() != -1:
         model.draw()
-        time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+        time.sleep(0.0001) # para dar tempo de visualizar as movimentacoes do agente no labirinto
     model.draw()  
 
     desempenhoAgenteExplorador(model, agentExp)
     # Cria o agente socorrista
-    # agentSoc = AgentSoc(model, configData.ambiente, agentExp.getMazeMap())
+    agentSoc = AgentSoc(model, configData.ambiente, agentExp.getMazeMap(), agentExp.getVictimsData())
 
-    # agentSoc.deliberate()
-    # while agentSoc.deliberate() != -1:
-    #     model.draw()
-    #     time.sleep(0.3) # para dar tempo de visualizar as movimentacoes do agente no labirinto
-    # model.draw()  
+    agentSoc.deliberate()
+    while agentSoc.deliberate() != -1:
+        model.draw()
+        time.sleep(0.1) # para dar tempo de visualizar as movimentacoes do agente no labirinto
+    model.draw() 
+
+    desempenhoAgenteScocorrista(model, agentSoc)
 
 
     ## agente explorador
