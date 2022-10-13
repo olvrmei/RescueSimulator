@@ -167,7 +167,7 @@ class Model:
         @param victimId é a posição da vítima dentro do vetor de sinais vitais
         @return a lista de sinais vitais ou uma lista vazia caso a vítima nao exista
         """
-        if victimId < self.getNumberOfVictims():
+        if victimId - 1  < self.getNumberOfVictims():
             return self.maze.vitalSignals[victimId - 1]
 
         return []

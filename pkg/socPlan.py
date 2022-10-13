@@ -3,10 +3,11 @@ from state import State
 from pkg.algoritmoGenetico import AlgoritmoGenetico
 
 class SocPlan:
-    def __init__(self, maxRows, maxColumns, goal, initialState, mazeMap, victims, time, name = "none", mesh = "square"):
+    def __init__(self, maxRows, maxColumns, goal, initialState, mazeMap, victims, time, name = "RescuePlan", mesh = "square"):
         """
         Define as variaveis necessárias para a utilização do random plan por um unico agente.
         """
+        self.name = name
         self.walls = []
         self.maxRows = maxRows
         self.maxColumns = maxColumns
@@ -36,7 +37,10 @@ class SocPlan:
                         self.graph[row][col].append(dir)
        
         self.algoritmoGen = AlgoritmoGenetico(self.graph, self.maxRows, self.maxColumns, self.dists, self.victims, self.time, self.initialState)
+        self.calculateAG()
+        
 
+    def calculateAG(self):
         self.algoritmoGen.calculate()
         self.actions = self.algoritmoGen.getBestSolution()
         print("Melhor solução: ", self.actions)

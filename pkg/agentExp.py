@@ -37,16 +37,6 @@ class AgentExp:
         # victimsData[victimId] = [sinais vitais, dificuldade de acesso]
         self.victimsData = dict()
 
-        # Mapa do ambiente
-        # Inicialmente define como livre todas as posições
-
-        # self.mazeMap = [["" for _ in range(self.model.columns)] for _ in range(self.model.rows)]
-        # for r in range(0, model.rows):
-        #     for c in range(0, model.columns):
-        #         self.updateMazeMap([r,c],"unknown")
-
-        
-
         ## Obtem o tempo que tem para executar
         self.tl = configDict["Te"]
         print("Tempo disponivel: ", self.tl)
@@ -72,12 +62,6 @@ class AgentExp:
         # Define o estado atual do agente = estado inicial
         self.currentState = self.prob.initialState
 
-        # Define o estado objetivo:        
-        # self.prob.defGoalState(randint(0,model.rows-1), randint(0,model.columns-1))
-        
-        # definimos um estado objetivo que veio do arquivo ambiente.txt
-        # self.prob.defGoalState(model.maze.board.posGoal[0],model.maze.board.posGoal[1])
-        # print("*** Objetivo do agente: ", self.prob.goalState)
         print("*** Total de vitimas existentes no ambiente: ", self.model.getNumberOfVictims())
 
 
@@ -91,10 +75,6 @@ class AgentExp:
         ## Cria a instancia do plano para se movimentar aleatoriamente no labirinto (sem nenhuma acao) 
         self.plan = ExplorePlan(model.rows, model.columns, self.prob.goalState, initial, "goal", self.mesh)
 
-        ## adicionar crencas sobre o estado do ambiente ao plano - neste exemplo, o agente faz uma copia do que existe no ambiente.
-        ## Em situacoes de exploracao, o agente deve aprender em tempo de execucao onde estao as paredes
-        # self.plan.setWalls(model.maze.walls)
-        
         ## Adiciona o(s) planos a biblioteca de planos do agente
         self.libPlan=[self.plan]
 
@@ -122,23 +102,10 @@ class AgentExp:
             print("Tempo esgotado")
             return -1
 
-        if self.plan.name != "retornaParaBase": 
-            # caso tenha que retornar para base
-            # self.currentState = self.positionSensor()
-            # self.plan.updateCurrentState(self.currentState) # atualiza o current state no plano
-            # print("AgExp cre que esta em: ", self.currentState)
-
-            self.shouldReturnToBase()
-
-        # if self.plan.name != "retornaParaBase": 
-        #     # caso tenha que retornar para base
-        #     self.currentState = self.positionSensor()
-        #     self.plan.updateCurrentState(self.currentState) # atualiza o current state no plano
-        #     # print("AgExp cre que esta em: ", self.currentState)
-
+        # if self.plan.name != "retornaParaBase":
         #     self.shouldReturnToBase()
 
-        self.plan = self.libPlan[0]
+        # self.plan = self.libPlan[0]
 
         print("\n\n*** Inicio do ciclo raciocinio ***")
         print("Pos agente no amb.: ", self.positionSensor())
@@ -185,14 +152,9 @@ class AgentExp:
         if  not self.positionExistsOnMazeMap(self.currentState) or self.mazeMap[self.currentState.row][self.currentState.col] == "unknown":
             self.updateMazeMap([self.currentState.row, self.currentState.col], "free")
 
-        self.printMazeMap()
+        # self.printMazeMap()
 
         if self.plan.name != "retornaParaBase": 
-        #     # caso tenha que retornar para base
-        #     self.currentState = self.positionSensor()
-        #     self.plan.updateCurrentState(self.currentState) # atualiza o current state no plano
-        #     # print("AgExp cre que esta em: ", self.currentState)
-
             self.shouldReturnToBase()
 
 
@@ -205,7 +167,7 @@ class AgentExp:
 
         ## Define a proxima acao a ser executada
         ## currentAction eh uma tupla na forma: <direcao>, <state>
-        result = self.plan.chooseAction()
+        result = self.plan.chooseAction(self.mazeMap)
         print("Ag deliberou pela acao: ", result[0], " o estado resultado esperado é: ", result[1])
 
         if self.previousAction == "nop" and result[0] == "nop":
@@ -298,7 +260,7 @@ class AgentExp:
             plan = ReturnPlan(self.prob, self.currentState, self.mazeMap)
             
             if self.tl - plan.getPlanCost() <= 3:
-                print("AgExp vai volta para a base")
+                print("AgExp vai voltar para a base")
                 print("\n*** Cálculo para retornar à base ***")
                 print("Caminho de retorno para a base: ", plan.getPath())
                 print("Custo total do caminho de retorno para a base: ", plan.getPlanCost(), "\n")

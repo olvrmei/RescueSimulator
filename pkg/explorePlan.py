@@ -2,7 +2,7 @@ from random import randint
 from state import State
 
 class ExplorePlan:
-    def __init__(self, maxRows, maxColumns, goal, initialState, name = "none", mesh = "square"):
+    def __init__(self, maxRows, maxColumns, goal, initialState, name = "ExplorePlan", mesh = "square"):
         """
         Define as variaveis necessárias para a utilização do plano do explorador de busca online
         """
@@ -85,7 +85,7 @@ class ExplorePlan:
         return movDirection, state
 
 
-    def nextPosition(self):
+    def nextPosition(self, mazeMap):
         """ Sorteia uma direcao e calcula a posicao futura do agente 
         @return: tupla contendo a acao (direcao) e o estado futuro resultante da movimentacao """
         # movePos = { "N" : (-1, 0),
@@ -107,7 +107,25 @@ class ExplorePlan:
         currentPos = (self.currentState.row, self.currentState.col)
         
         if len(possibilities) > 0:
+            #  pega uma direção aleatoria nas possibilidades
             rand = randint(0, len(possibilities) - 1)
+
+            # pra cada possibilidade, ve se existe a posicao no mapa e se é unknown, se for explora essa direcao
+            for pos in possibilities:
+                newPosRow = movePos[pos][0] + currentPos[0]
+                newPosCol = movePos[pos][1] + currentPos[1]
+                mazeLenX = len(mazeMap)
+                mazeLenY = len(mazeMap[0])
+
+                if newPosCol >= 0 and newPosRow >= 0:
+                    if (newPosRow >= mazeLenX) or (newPosCol >= mazeLenY):
+                        rand = possibilities.index(pos)
+                        break
+                    
+                    if mazeMap[newPosRow][newPosCol] == "unknown":
+                        rand = possibilities.index(pos)
+                        break
+
             movDirection = possibilities[rand]
             possibilities.pop(rand)
             self.untried[currentPos] = possibilities 
@@ -129,14 +147,14 @@ class ExplorePlan:
         return self.randomizeNextPosition()
 
 
-    def chooseAction(self):
+    def chooseAction(self, mazeMap):
         """ Escolhe o proximo movimento de forma aleatoria. 
         Eh a acao que vai ser executada pelo agente. 
         @return: tupla contendo a acao (direcao) e uma instância da classe State que representa a posição esperada após a execução
         """
 
         ## Tenta encontrar um movimento possivel dentro do tabuleiro 
-        result = self.nextPosition()
+        result = self.nextPosition(mazeMap)
         currentPos = (self.currentState.row, self.currentState.col)
         nextPos = (result[1].row, result[1].col)
 
@@ -145,7 +163,7 @@ class ExplorePlan:
             self.unbacktracked[nextPos].insert(0, currentPos)
 
         if not self.isPossibleToMove(result[1]):
-            result = self.chooseAction()
+            result = self.chooseAction(mazeMap)
 
         return result
 

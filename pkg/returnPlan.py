@@ -134,7 +134,7 @@ class ReturnPlan:
         action = list(moveDirection.keys())[list(moveDirection.values()).index(delta)]
         return action, State(movePos[0], movePos[1])
 
-    def chooseAction(self):
+    def chooseAction(self, mazeMap = None):
         return self.getNextPosition()
 
     def getPlanCost(self):

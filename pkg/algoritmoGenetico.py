@@ -17,15 +17,16 @@ class AlgoritmoGenetico:
         # Inicia parametros do algoritmo
         self.mutationC = 0.2 # 20% de chance de mutação
         self.crossoverC = 0.6 # 60% de chance de crossover
-        self.popSize = len(self.victims) * 2 # Tamanho da população
-        self.swap = 0.5 # 50% de chance de swap
-        self.add_rm = 0.5 # 50% de chance de adicionar ou remover um gene
-        self.max_it = 2 # Número máximo de iterações sem melhoria
+        self.popSize = len(self.victims) * 3 # Tamanho da população
+        self.swap = 0.15 # 15% de chance de swap
+        self.add_rm = 0.50 # 50% de chance de adicionar ou remover um gene
+        self.max_it = 5 # Número máximo de iterações sem melhoria
 
         # Calcula o fitness
         self.fit = 1
         self.fit = self.fitness(self.victims)
-        self.fit = 1/self.fit
+        if self.fit != 0:
+            self.fit = 1/self.fit
         # print("Fit: ", self.fit)
 
         # Cria população inicial
@@ -93,7 +94,7 @@ class AlgoritmoGenetico:
 
         res = self.calculateChromosomeCost(newVictims)
         while res[0] > self.time:
-            newVictims = random.sample(newVictims, len(newVictims)-1)
+            newVictims = self.randomSampleDict(newVictims, len(newVictims)-1)
             res = self.calculateChromosomeCost(newVictims)
         
         fit = self.fitness(newVictims)
@@ -104,29 +105,29 @@ class AlgoritmoGenetico:
     def mutation(self, chromosome):
         if random.uniform(0,1) > self.mutationC:
             return chromosome
-        newVitcims = chromosome.victims.copy()
+        newVictims = chromosome.victims.copy()
 
         # Swap dos genes
         if random.uniform(0,1) <= self.swap:
-            newVitcims = self.swapGenes(newVitcims)
+            newVictims = self.swapGenes(newVictims)
         
         # Adiciona ou remove mutação
         if random.uniform(0,1) <= self.add_rm:
-            newVitcims = self.addRemoveGene1(newVitcims, 0.5)
+            newVictims = self.addRemoveGene1(newVictims, 0.5)
         
-        res = self.calculateChromosomeCost(newVitcims)
+        res = self.calculateChromosomeCost(newVictims)
         while res[0] > self.time:
             # Swap
             if random.uniform(0,1) <= self.swap:
-                newVitcims = self.swapGenes(newVitcims)
+                newVictims = self.swapGenes(newVictims)
             # Add ou Remove
             if random.uniform(0,1) <= self.add_rm:
-                newVitcims = self.addRemoveGene1(newVitcims, 0.75)
+                newVictims = self.addRemoveGene1(newVictims, 0.75)
             
-            newVitcims = random.sample(newVitcims, len(newVitcims)-1)
-            res = self.calculateChromosomeCost(newVitcims)
-        fit = self.fitness(newVitcims)
-        chromosome = Chromosome(newVitcims, res[0], res[1], fit)
+            newVictims = self.randomSampleDict(newVictims, len(newVictims)-1)
+            res = self.calculateChromosomeCost(newVictims)
+        fit = self.fitness(newVictims)
+        chromosome = Chromosome(newVictims, res[0], res[1], fit)
         return self.mutation(chromosome)
         
     def swapGenes(self, victims):
