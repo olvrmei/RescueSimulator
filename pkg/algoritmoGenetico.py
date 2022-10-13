@@ -26,7 +26,7 @@ class AlgoritmoGenetico:
         self.fit = 1
         self.fit = self.fitness(self.victims)
         self.fit = 1/self.fit
-        print("Fit: ", self.fit)
+        # print("Fit: ", self.fit)
 
         # Cria população inicial
         self.population = []
@@ -34,7 +34,7 @@ class AlgoritmoGenetico:
             chromosome = self.generateChromosome()
             self.population.append(chromosome)
 
-        print("População inicial: ", self.population)
+        # print("População inicial: ", self.population)
 
     def fitness(self, victims):
         # Gravidades %  [25, 50, 75, 100]
@@ -80,9 +80,9 @@ class AlgoritmoGenetico:
         newVictims = v1
         for i in v2:
             exits = False
-            print("i: ", i)
+            # print("i: ", i)
             for j in newVictims:
-                print("j: ", j)
+                # print("j: ", j)
                 if i == j:
                     exits = True
                 else:
@@ -132,10 +132,10 @@ class AlgoritmoGenetico:
     def swapGenes(self, victims):
         # i = victims.index(random.choice(victims))
         i = self.randomChoiceDictKey(victims)
-        print("swap i: ", i)
+        # print("swap i: ", i)
         # j = victims.index(random.choice(victims))
         j = self.randomChoiceDictKey(victims)
-        print("swap j: ", j)
+        # print("swap j: ", j)
         
         newVictims = victims.copy()
         newVictims[i], newVictims[j] = newVictims[j], newVictims[i]
@@ -192,8 +192,8 @@ class AlgoritmoGenetico:
                 j = i + random.randint(i+1, len(newPop)-1) 
                 newFit = newPop[j].fit/(max_fit)
 
-                print("newPop[i]: ", newPop[i])
-                print("newPop[j]: ", newPop[j])
+                # print("newPop[i]: ", newPop[i])
+                # print("newPop[j]: ", newPop[j])
 
                 # Crossover
                 x = self.crossover(newPop[i], newPop[j], newFit)
@@ -272,7 +272,7 @@ class AlgoritmoGenetico:
             # print("state: ", state)
             # print(state.pos)
             if state.pos == finalPos:
-                print(state.pos, state.parent, state.reverseAction, finalPos)
+                # print(state.pos, state.parent, state.reverseAction, finalPos)
                 break
             for action in self.graph[state.pos[0]][state.pos[1]]:
                 nextPos = self.getNextPosition(state.pos, action)
