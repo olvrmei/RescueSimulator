@@ -1,11 +1,9 @@
 from queue import PriorityQueue
-# import queue
 import random
 
 class AlgoritmoGenetico:
     def __init__(self, graph, maxRows, maxCols, dists, victims, time, initialState):
         self.graph = graph
-        # print("Graph: ", self.graph)
         self.maxRows = maxRows
         self.maxCols = maxCols
         self.dists = dists
@@ -27,7 +25,6 @@ class AlgoritmoGenetico:
         self.fit = self.fitness(self.victims)
         if self.fit != 0:
             self.fit = 1/self.fit
-        # print("Fit: ", self.fit)
 
         # Cria população inicial
         self.population = []
@@ -35,7 +32,6 @@ class AlgoritmoGenetico:
             chromosome = self.generateChromosome()
             self.population.append(chromosome)
 
-        # print("População inicial: ", self.population)
 
     def fitness(self, victims):
         # Gravidades %  [25, 50, 75, 100]
@@ -81,9 +77,9 @@ class AlgoritmoGenetico:
         newVictims = v1
         for i in v2:
             exits = False
-            # print("i: ", i)
+
             for j in newVictims:
-                # print("j: ", j)
+
                 if i == j:
                     exits = True
                 else:
@@ -113,7 +109,7 @@ class AlgoritmoGenetico:
         
         # Adiciona ou remove mutação
         if random.uniform(0,1) <= self.add_rm:
-            newVictims = self.addRemoveGene1(newVictims, 0.5)
+            newVictims = self.addRemoveGene(newVictims, 0.5)
         
         res = self.calculateChromosomeCost(newVictims)
         while res[0] > self.time:
@@ -122,7 +118,7 @@ class AlgoritmoGenetico:
                 newVictims = self.swapGenes(newVictims)
             # Add ou Remove
             if random.uniform(0,1) <= self.add_rm:
-                newVictims = self.addRemoveGene1(newVictims, 0.75)
+                newVictims = self.addRemoveGene(newVictims, 0.75)
             
             newVictims = self.randomSampleDict(newVictims, len(newVictims)-1)
             res = self.calculateChromosomeCost(newVictims)
@@ -131,50 +127,24 @@ class AlgoritmoGenetico:
         return self.mutation(chromosome)
         
     def swapGenes(self, victims):
-        # i = victims.index(random.choice(victims))
+
         i = self.randomChoiceDictKey(victims)
-        # print("swap i: ", i)
-        # j = victims.index(random.choice(victims))
         j = self.randomChoiceDictKey(victims)
-        # print("swap j: ", j)
         
         newVictims = victims.copy()
         newVictims[i], newVictims[j] = newVictims[j], newVictims[i]
         return newVictims
 
-    def addRemoveGene1(self, victims, chance):
+    def addRemoveGene(self, victims, chance):
         if random.uniform(0,1) <= chance:
             # Adiciona um gene
             randomChoice = self.randomChoiceDictKey(self.victims)
             victims[randomChoice] = self.victims[randomChoice]
-            
-            # victims.append(random.choice(self.victims))
         else:
             # Remove um gene
             victims.pop(self.randomChoiceDictKey(victims))
-            # victims.pop(random.randint(0, len(victims)-1))
-        return victims
 
-    # def addRemoveGene(self, victims, chance):
-    #     if random.uniform(0,1) <= chance:
-    #         # Adiciona um gene
-    #         if len(victims) == len(self.victims):
-    #             return victims
-    #         randomChoice = self.randomChoiceDictKey(self.victims)
-    #         newVictim = random.choice(self.victims)
-    #         x = [v for v in victims if v[0] == newVictim[0]]
-    #         while len(x) > 0:
-    #             newVictim = random.choice(self.victims)
-    #             x = [v for v in victims if v[0] == newVictim[0]]
-    #         newVictims = victims.copy()
-    #         newVictims.append(newVictim)
-    #         return newVictims
-    #     else:
-    #         # Remove um gene
-    #         if len(victims) < 2:
-    #             return victims
-    #         newVictims = random.sample(victims, len(victims)-1).copy()            
-    #         return newVictims
+        return victims
 
     def sortPopulation(self):
         self.population.sort(key=lambda x: x.fit, reverse=True)
@@ -193,9 +163,6 @@ class AlgoritmoGenetico:
                 j = i + random.randint(i+1, len(newPop)-1) 
                 newFit = newPop[j].fit/(max_fit)
 
-                # print("newPop[i]: ", newPop[i])
-                # print("newPop[j]: ", newPop[j])
-
                 # Crossover
                 x = self.crossover(newPop[i], newPop[j], newFit)
                 newPop.append(x)
@@ -211,13 +178,13 @@ class AlgoritmoGenetico:
         flag = False
         chromosome = None
         victimsKeys = list(victims.keys())
-        # print("pre shuffle: ", victimsKeys)
+
         random.shuffle(victimsKeys)
-        # print("post shuffle: ",victimsKeys)
+
         while not flag:
             victims.pop(victimsKeys[len(victimsKeys)-1])
             victimsKeys.pop()
-            # print("victims post pop: ", victims)
+
             res = self.calculateChromosomeCost(victims)
             if res[0] <= self.time:
                 flag = True
@@ -235,7 +202,6 @@ class AlgoritmoGenetico:
         
         for v in victims:
             v1 = victims[v]
-            # print(v1[0])
             if prevVictim:
                 v2 = prevVictim
                 # Calcula saindo da vítima anterior para a próxima
@@ -270,10 +236,7 @@ class AlgoritmoGenetico:
 
         while not stateQueue.empty():
             state = stateQueue.get()
-            # print("state: ", state)
-            # print(state.pos)
             if state.pos == finalPos:
-                # print(state.pos, state.parent, state.reverseAction, finalPos)
                 break
             for action in self.graph[state.pos[0]][state.pos[1]]:
                 nextPos = self.getNextPosition(state.pos, action)
@@ -290,15 +253,11 @@ class AlgoritmoGenetico:
         
         # construção do caminho
         path = []
-        # print("stateSet: ", stateSet)
         pathState = stateSet[finalPos]
         while pathState.parent != None and pathState.pos != initialPos:
             path.append(pathState.reverseAction)
-            # print(path)
-            # print(pathState.parent.pos)
             pathState = stateSet[pathState.parent.pos]
         path.reverse()
-        # print(path)
 
         return stateSet[finalPos].cost, path, states
            
@@ -333,7 +292,6 @@ class AlgoritmoGenetico:
         # Ordena população de acordo com o fitness
         self.sortPopulation()
 
-        # print("sorted population: ", self.population)
         # Pega maior fitness
         biggestFit = self.population[0].fit
         # Enquanto não atingir o máximo de iterações e o fitness não for 1
